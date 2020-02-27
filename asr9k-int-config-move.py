@@ -53,7 +53,7 @@ def main():
                     progress(interface+1, len(map))
                     response = send_command(host, '"show run formal | i ' + map[interface][0] + '"')
 
-                    config = re.findall(r'.*%s\s.*|.*%s\..*' % (map[interface][0], map[interface][0]), response.strip(''), re.MULTILINE)
+                    config = re.findall(r'.*%s\s.*|.*%s\..*' % (map[interface][0], map[interface][0]), response, re.MULTILINE)
                     if config:
                         for i in range(len(config)):
                             new_config = config[i].replace(map[interface][0],map[interface][1])
