@@ -45,6 +45,7 @@ def main():
         if old != new:
             map.append(interface.strip().split(','))
 
+    new_config = ''
     try:
         with open('new-configuration', 'w') as nf:
             with open('remove-configuration','w') as rf:
@@ -56,11 +57,19 @@ def main():
                     config = re.findall(r'.*%s\s.*|.*%s\..*' % (map[interface][0], map[interface][0]), response, re.MULTILINE)
                     if config:
                         for i in range(len(config)):
-                            new_config = config[i].replace(map[interface][0],map[interface][1])
+                            if 'description' in config[i]:
+                                old_if = re.search(r'[0-9]\/[0-9]\/[0-9]\/[0-9]*', map[interface][0])
+                                new_if = re.search(r'[0-9]\/[0-9]\/[0-9]\/[0-9]*', map[interface][1])
+                                desc = re.split('description', config[i])
+                                new_config = desc[0].replace(map[interface][0],map[interface][1]) + ' description' + desc[1].replace(old_if.group(0),new_if.group(0),1)
+                            else:
+                                new_config = config[i].replace(map[interface][0],map[interface][1])
+
                             nf.write(new_config + '\n')
 
                         for i in range(len(config)):
-                            rf.write('no ' + config[i] + '\n')
+                            if not 'shutdown' in config[i]:
+                                rf.write('no ' + config[i] + '\n')
 
                 print
     except IOError as e:
